@@ -6,7 +6,7 @@ pipeline {
                 echo 'Hello World!!!'
             }
         }
-        stage {
+        stage('cat') {
             when {
                 branch 'dev*'
             }
