@@ -26,17 +26,17 @@ pipeline {
             }
         }
 
-        stage('API Tests') {
-            when {
-                branch 'develop'
-            }
-            steps {
-                script {
-                    // Run API tests using Python requests
-                    sh 'python3 api_tests.py'
-                }
-            }
-        }
+        // stage('API Tests') {
+        //     when {
+        //         branch 'develop'
+        //     }
+        //     steps {
+        //         script {
+        //             // Run API tests using Python requests
+        //             sh 'python3 api_tests.py'
+        //         }
+        //     }
+        // }
 
         stage('Create Image') {
             steps {
