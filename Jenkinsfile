@@ -1,19 +1,61 @@
 pipeline {
-    agent { label 'workers' }
+    agent any
+
     stages {
-        stage('hello') {
+        stage('Checkout') {
             steps {
-                echo 'Hello World!!!'
+                script {
+                    // Checkout all branches
+                    checkout scm
+                }
             }
         }
-        stage('cat') {
+
+        stage('Unit Tests') {
             when {
-                branch 'dev*'
+                anyOf {
+                    branch 'feature'
+                    branch 'develop'
+                }
             }
             steps {
-                sh '''
-                cat README.md
-                '''
+                script {
+                    // Run unit tests using Python unittest
+                    sh 'python3 -m unittest test_employees.py'
+                }
+            }
+        }
+
+        stage('API Tests') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                script {
+                    // Run API tests using Python requests
+                    sh 'python3 api_tests.py'
+                }
+            }
+        }
+
+        stage('Create Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    sh 'docker build -t orchuk/employees:${BRANCH_NAME} .'
+                }
+            }
+        }
+
+        stage('Push to GitHub') {
+            when {
+                branch 'master'
+            }
+            steps {
+                script {
+                    // Push code changes to GitHub
+                    sh 'git push origin master'
+                }
             }
         }
     }
