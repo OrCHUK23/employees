@@ -4,55 +4,59 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                script {
+                    // Checkout all branches
+                    checkout scm
+                }
             }
         }
 
         stage('Unit Tests') {
             when {
-                expression { 
-                    return env.BRANCH_NAME ==~ /(feature|develop)/
+                anyOf {
+                    branch 'feature'
+                    branch 'develop'
                 }
             }
             steps {
-                sh 'python3 -m unittest employees.tests.test_employees'
+                script {
+                    // Run unit tests using Python unittest.
+                    sh 'python3 -m unittest test_employees.py'
+                }
             }
         }
 
-        // Add more stages as needed
-        // For example, you can include stages for building Docker images, pushing to a repository, etc.
+        // stage('API Tests') {
+        //     when {
+        //         branch 'develop'
+        //     }
+        //     steps {
+        //         script {
+        //             // Run API tests using Python requests
+        //             sh 'python3 api_tests.py'
+        //         }
+        //     }
+        // }
 
-        stage('Build Docker Image') {
-            when {
-                expression { 
-                    return env.BRANCH_NAME ==~ /(feature|develop)/
-                }
-            }
+        stage('Create Image') {
             steps {
-                sh 'docker build -t your-docker-repo/your-flask-app:${env.BRANCH_NAME} .'
+                script {
+                    // Build Docker image
+                    sh 'docker build -t orchuk/employees:${BRANCH_NAME} .'
+                }
             }
         }
 
         stage('Push to Repository') {
             when {
-                expression { 
-                    return env.BRANCH_NAME == 'master'
-                }
+                branch 'master'
             }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'your-docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD'
-                        sh 'docker push your-docker-repo/your-flask-app:${env.BRANCH_NAME}'
-                    }
+                    // Push Docker image to Docker Hub
+                    sh 'docker push orchuk/employees:${BRANCH_NAME}'
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            // Additional post-build actions if needed
         }
     }
 }
