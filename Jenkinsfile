@@ -1,5 +1,9 @@
 pipeline {
     agent any
+        environment {
+        GIT_COMMITTER_NAME = 'OrCHUK23'
+        GIT_COMMITTER_EMAIL = 'henor1997@gmail.com'
+    }
 
     stages {
         stage('Checkout') {
