@@ -54,6 +54,7 @@ pipeline {
             steps {
                 script {
                     // Push code changes to GitHub
+                    sh 'git commit -m "Initial commit"'
                     sh 'git push origin master'
                 }
             }
