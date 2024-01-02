@@ -1,4 +1,3 @@
-
 import json
 from flask import Flask, jsonify, request
 app = Flask(__name__)
@@ -8,7 +7,6 @@ employees = [
  { 'id': 2, 'name': 'Kate' },
  { 'id': 3, 'name': 'Joe' }
 ]
-
 
 nextEmployeeId = 4
 
@@ -70,4 +68,4 @@ def delete_employee(id: int):
  return jsonify(employee), 200
 
 if __name__ == '__main__':
-   app.run(port=5000)
+    app.run(host='0.0.0.0', port=5000)
