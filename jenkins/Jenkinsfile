@@ -1,8 +1,10 @@
 pipeline {
     agent any
-        environment {
-        GIT_COMMITTER_NAME = 'OrCHUK23'
-        GIT_COMMITTER_EMAIL = 'henor1997@gmail.com'
+
+    environment {
+        // GIT_COMMITTER_NAME = 'OrCHUK23'
+        // GIT_COMMITTER_EMAIL = 'henor1997@gmail.com'
+        DOCKERHUB_CREDENTIALS = credentials('docker_hub_credentials')
     }
 
     stages {
@@ -30,18 +32,6 @@ pipeline {
             }
         }
 
-        // stage('API Tests') {
-        //     when {
-        //         branch 'develop'
-        //     }
-        //     steps {
-        //         script {
-        //             // Run API tests using Python requests
-        //             sh 'python3 api_tests.py'
-        //         }
-        //     }
-        // }
-
         stage('Create Image') {
             steps {
                 script {
@@ -51,20 +41,31 @@ pipeline {
             }
         }
 
-        stage('Push to GitHub') {
+        stage('Push to Dockerhub') {
             when {
                 branch 'master'
             }
             steps {
                 script {
-
                     // Set Git user identity
                     sh 'git config user.name "${GIT_COMMITTER_NAME}"'
                     sh 'git config user.email "${GIT_COMMITTER_EMAIL}"'
 
 
-                    // Push code changes to GitHub
-                    sh 'git push origin master'
+                    // Get Docker Hub username and password
+                    def credentials = DOCKERHUB_CREDENTIALS(0)
+                    def username = credentials.username
+                    def password = credentials.password
+
+                    // Log in to Docker Hub
+                    sh "docker login -u ${username} -p ${password}"
+
+                    // Tag the Docker image
+                    sh 'docker tag orchuk/employees:${BRANCH_NAME} ${username}/employees:${BRANCH_NAME}'
+
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${username}/employees:${BRANCH_NAME}"
+                    
                 }
             }
         }
