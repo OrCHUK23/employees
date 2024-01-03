@@ -57,6 +57,12 @@ pipeline {
             }
             steps {
                 script {
+
+                    // Set Git user identity
+                    sh 'git config user.name "${GIT_COMMITTER_NAME}"'
+                    sh 'git config user.email "${GIT_COMMITTER_EMAIL}"'
+
+                    
                     // Push code changes to GitHub
                     sh 'git commit -m "Initial commit"'
                     sh 'git push origin master'
